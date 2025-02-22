@@ -31,7 +31,7 @@ resource "proxmox_virtual_environment_vm" "k8s-machines" {
   }
 
   disk {
-    datastore_id = "local-lvm"
+    datastore_id = "Data"
     file_id      = proxmox_virtual_environment_download_file.talos_qemuagent_qcow2_img.id
     interface    = "scsi0"
   }
