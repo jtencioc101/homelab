@@ -1,10 +1,11 @@
-resource "proxmox_virtual_environment_vm" "k8s-control-plane" {
-  name        = "k8s-control-plane"
+resource "proxmox_virtual_environment_vm" "k8s-machines" {
+  for_each = var.vms
+  name        = each.value.vm_name
   description = "Managed by Terraform"
   tags        = ["terraform", "talos"]
 
   node_name = "pve1"
-  vm_id     = 105
+  vm_id     = each.value.vm_id
 
   agent {
     # read 'Qemu guest agent' section, change to true only when ready
@@ -38,7 +39,7 @@ resource "proxmox_virtual_environment_vm" "k8s-control-plane" {
   initialization {
     ip_config {
       ipv4 {
-        address = "172.16.10.5/24"
+        address = each.value.vm_ip
         gateway = "172.16.10.1"
       }
     }
