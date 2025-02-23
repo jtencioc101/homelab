@@ -15,7 +15,7 @@ talosctl apply-config --insecure --nodes 172.16.10.6 --file _out/worker.yaml
 talosctl apply-config --insecure --nodes 172.16.10.7 --file _out/worker.yaml
 
 
-# Using the Cluster
+# Using the cluster
 export TALOSCONFIG="_out/talosconfig" 
 talosctl config endpoint 172.16.10.5
 talosctl config node 172.16.10.5
