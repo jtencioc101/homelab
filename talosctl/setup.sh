@@ -17,8 +17,8 @@ talosctl apply-config --insecure --nodes 172.16.10.7 --file _out/worker.yaml
 
 # Using the Cluster
 export TALOSCONFIG="_out/talosconfig" 
-talosctl config endpoint k8s-ccp
-talosctl config node k8s-ccp
+talosctl config endpoint 172.16.10.5
+talosctl config node 172.16.10.5
 
 # Must wait for reebot
 sleep 60
