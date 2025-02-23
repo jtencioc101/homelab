@@ -1,5 +1,5 @@
 resource "proxmox_virtual_environment_vm" "k8s-machines" {
-  for_each = var.vms
+  for_each = var.k8s-machines
   name        = each.value.vm_name
   description = "Managed by Terraform"
   tags        = ["terraform", "talos"]
@@ -9,7 +9,7 @@ resource "proxmox_virtual_environment_vm" "k8s-machines" {
 
   agent {
     # read 'Qemu guest agent' section, change to true only when ready
-    enabled = true
+    enabled = false #if this is set to true terraform destroy will not work
   }
   # if agent is not enabled, the VM may not be able to shutdown properly, and may need to be forced off
   stop_on_destroy = true
@@ -72,9 +72,8 @@ resource "proxmox_virtual_environment_download_file" "talos_qemuagent_qcow2_img"
   content_type = "iso"
   datastore_id = "local"
   node_name    = "pve1"
-  url          = "https://factory.talos.dev/image/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515/v1.9.4/nocloud-amd64.iso"
+  url          = "https://factory.talos.dev/image/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515/v1.9.2/nocloud-amd64.iso"
 }
-
 #resource "random_password" "ubuntu_vm_password" {
 # length           = 16
 #  override_special = "_%@"
