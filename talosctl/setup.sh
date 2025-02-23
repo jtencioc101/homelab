@@ -24,7 +24,7 @@ talosctl config node 172.16.10.5
 sleep 60
 
 talosctl bootstrap
-talosctl kubeconfig ~/.kubeconfig
+talosctl kubeconfig /Users/julio/.kubeconfig 
 
 # Set kubeconfig file
-export KUBECONFIG="~/.kubeconfig"
+export KUBECONFIG=/Users/julio/.kubeconfig 
