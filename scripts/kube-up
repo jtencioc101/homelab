@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# Spinner function to show task progress
+spinner() {
+    local message="$1"
+    local delay=0.1
+    local spinstr='|/-\'
+
+    echo -ne "$message"
+    while [ -e "/tmp/spinner.lock" ]; do
+        for ((i = 0; i < ${#spinstr}; i++)); do
+            printf "\r%s [%c] " "$message" "${spinstr:i:1}"
+            sleep $delay
+        done
+    done
+    printf "\r%s ✅ Done!     \n" "$message"
+}
+
+# Function to wait until all nodes are ready
+wait_for_nodes() {
+    local expected_nodes=3  # Set the number of cluster nodes to wait for
+    touch /tmp/spinner.lock
+    spinner "🔄 Waiting for all $expected_nodes cluster nodes to be ready..." &
+    SPINNER_PID=$!
+
+    while true; do
+        # Count nodes in Ready state
+        ready_count=$(kubectl get nodes --no-headers 2>/dev/null | awk '$2 == "Ready"' | wc -l)
+
+        if [ "$ready_count" -eq "$expected_nodes" ]; then
+            rm -f /tmp/spinner.lock
+            wait $SPINNER_PID 2>/dev/null
+            echo -e "✅ All $expected_nodes nodes are ready!"
+            kubectl get nodes
+            break
+        else
+            sleep 10
+        fi
+    done
+}
+
+# Build cluster
+touch /tmp/spinner.lock
+spinner "🚀 Building cluster..." &
+SPINNER_PID=$!
+cd /Users/julio/Documents/Projects/homelab-1/terraform/proxmox || { echo "❌ Failed to change directory"; exit 1; }
+terraform apply --auto-approve > /dev/null 2>&1
+rm -f /tmp/spinner.lock
+wait $SPINNER_PID 2>/dev/null
+
+# Set up cluster nodes
+touch /tmp/spinner.lock
+spinner "⚙️  Setting up cluster nodes..." &
+SPINNER_PID=$!
+cd /Users/julio/Documents/Projects/homelab-1/talosctl/ || { echo "❌ Failed to change directory"; exit 1; }
+./setup.sh > /dev/null 2>&1
+rm -f /tmp/spinner.lock
+wait $SPINNER_PID 2>/dev/null
+
+# Wait for all cluster nodes to be ready
+wait_for_nodes
+
+echo "🎉 Cluster setup completed successfully!"
+

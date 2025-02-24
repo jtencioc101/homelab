@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Spinner function
+spinner() {
+    local message="$1"
+    local delay=0.1
+    local spinstr='|/-\'
+
+    while kill -0 $2 2>/dev/null; do
+        for ((i = 0; i < ${#spinstr}; i++)); do
+            printf "\r%s [%c] " "$message" "${spinstr:i:1}"
+            sleep $delay
+        done
+    done
+
+    printf "\r%s ✅ Done!     \n" "$message"
+}
+
+# Destroy cluster
+echo "🔥 Tearing down stuff"
+cd /Users/julio/Documents/Projects/homelab-1/terraform/proxmox || { echo "❌ Directory not found"; exit 1; }
+
+# Run terraform destroy with spinner
+terraform destroy --auto-approve > /dev/null 2>&1 &
+spinner "🔥 Destroying cluster..." $!
+
+# Final output
+echo "✅ Cluster destroyed successfully!"
+
