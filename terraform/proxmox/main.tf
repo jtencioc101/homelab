@@ -44,6 +44,10 @@ resource "proxmox_virtual_environment_vm" "k8s-machines" {
       }
     }
 
+    dns {
+      servers = ["172.16.10.2"]
+    }
+
     user_account {
       #keys     = [trimspace(tls_private_key.ubuntu_vm_key.public_key_openssh)]
       password = var.adminpass
@@ -74,27 +78,4 @@ resource "proxmox_virtual_environment_download_file" "talos_qemuagent_qcow2_img"
   node_name    = "pve1"
   url          = "https://factory.talos.dev/image/ce4c980550dd2ab1b17bbf2b08801c7eb59418eafe8f279833297925d67c7515/v1.9.2/nocloud-amd64.iso"
 }
-#resource "random_password" "ubuntu_vm_password" {
-# length           = 16
-#  override_special = "_%@"
-#  special          = true
-#}
 
-#resource "tls_private_key" "ubuntu_vm_key" {
-#  algorithm = "RSA"
-#  rsa_bits  = 2048
-#}
-
-#output "ubuntu_vm_password" {
-#  value     = random_password.ubuntu_vm_password.result
-#  sensitive = true
-#}
-
-#output "ubuntu_vm_private_key" {
-#  value     = tls_private_key.ubuntu_vm_key.private_key_pem
-#  sensitive = true
-#}
-
-#output "ubuntu_vm_public_key" {
-#  value = tls_private_key.ubuntu_vm_key.public_key_openssh
-#}
