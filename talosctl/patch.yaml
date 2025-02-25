@@ -2,8 +2,3 @@ cluster:
   network:
     cni:
       name: none
-
-machine:
-  kubelet:
-    extraArgs:
-      rotate-server-certificates: true
