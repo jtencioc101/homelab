@@ -1,4 +1,7 @@
 #!/bin/bash
+kubectl create ns traefik-v2
+
 helm repo add traefik https://traefik.github.io/charts
 helm repo update
-helm install traefik traefik/traefik
+helm install --namespace=traefik-v2 \
+	traefik traefik/traefik
