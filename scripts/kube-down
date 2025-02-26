@@ -18,7 +18,7 @@ spinner() {
 
 # Destroy cluster
 echo "🔥 Tearing down stuff"
-cd /Users/julio/Documents/Projects/homelab-1/terraform/proxmox || { echo "❌ Directory not found"; exit 1; }
+cd /Users/julio/Documents/Projects/homelab/terraform/proxmox || { echo "❌ Directory not found"; exit 1; }
 
 # Run terraform destroy with spinner
 terraform destroy --auto-approve > /dev/null 2>&1 &

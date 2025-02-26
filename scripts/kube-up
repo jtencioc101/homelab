@@ -111,7 +111,7 @@ wait_for_ready_nodes() {
 touch /tmp/spinner.lock
 spinner "🚀 Building cluster..." &
 SPINNER_PID=$!
-cd /Users/julio/Documents/Projects/homelab-1/terraform/proxmox || { echo "❌ Failed to change directory"; exit 1; }
+cd /Users/julio/Documents/Projects/homelab/terraform/proxmox || { echo "❌ Failed to change directory"; exit 1; }
 terraform apply --auto-approve > /dev/null 2>&1
 rm -f /tmp/spinner.lock
 wait $SPINNER_PID 2>/dev/null
@@ -120,7 +120,7 @@ wait $SPINNER_PID 2>/dev/null
 touch /tmp/spinner.lock
 spinner "⚙️ Setting up cluster nodes..." &
 SPINNER_PID=$!
-cd /Users/julio/Documents/Projects/homelab-1/talosctl/ || { echo "❌ Failed to change directory"; exit 1; }
+cd /Users/julio/Documents/Projects/homelab/talosctl/ || { echo "❌ Failed to change directory"; exit 1; }
 ./setup.sh > /dev/null 2>&1
 rm -f /tmp/spinner.lock
 wait $SPINNER_PID 2>/dev/null

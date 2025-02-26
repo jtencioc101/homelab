@@ -1,11 +1,11 @@
 resource "proxmox_virtual_environment_vm" "k8s-machines" {
   for_each = var.k8s-machines
-  name        = each.value.vm_name
+  name        = each.value.name
   description = "Managed by Terraform"
   tags        = ["terraform", "talos"]
 
   node_name = "pve1"
-  vm_id     = each.value.vm_id
+  vm_id     = each.value.vmid
 
   agent {
     # read 'Qemu guest agent' section, change to true only when ready
@@ -26,8 +26,8 @@ resource "proxmox_virtual_environment_vm" "k8s-machines" {
   }
 
   memory {
-    dedicated = 4096
-    floating  = 4096 # set equal to dedicated to enable ballooning
+    dedicated = 8196
+    floating  = 8196# set equal to dedicated to enable ballooning
   }
 
   disk {
@@ -39,7 +39,7 @@ resource "proxmox_virtual_environment_vm" "k8s-machines" {
   initialization {
     ip_config {
       ipv4 {
-        address = each.value.vm_ip
+        address = each.value.ip
         gateway = "172.16.10.1"
       }
     }
