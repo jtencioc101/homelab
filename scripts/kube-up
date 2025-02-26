@@ -16,7 +16,7 @@ spinner() {
     printf "\r%s ✅ Done!     \n" "$message"
 }
 
-# Function to wait until nodes are detected (regardless of Ready state)
+# Function to wait until nodes are detected (Ready/NotReady)
 wait_for_node_presence() {
     local expected_nodes=3
     local timeout=300
@@ -50,7 +50,10 @@ wait_for_node_presence() {
 
 # Function to install Cilium CNI
 install_cilium() {
-    echo "🚀 Installing Cilium CNI..."
+    touch /tmp/spinner.lock
+    spinner "🚀 Installing Cilium CNI..." &
+    SPINNER_PID=$!
+
     helm repo add cilium https://helm.cilium.io/ > /dev/null 2>&1
     helm repo update > /dev/null 2>&1
 
@@ -65,6 +68,9 @@ install_cilium() {
         --set securityContext.capabilities.cleanCiliumState="{NET_ADMIN,SYS_ADMIN,SYS_RESOURCE}" \
         --set cgroup.autoMount.enabled=false \
         --set cgroup.hostRoot=/sys/fs/cgroup
+
+    rm -f /tmp/spinner.lock
+    wait $SPINNER_PID 2>/dev/null
 
     if [ $? -eq 0 ]; then
         echo "✅ Cilium installation completed!"
@@ -107,6 +113,44 @@ wait_for_ready_nodes() {
     done
 }
 
+# Function to install MetalLB
+install_metallb() {
+    touch /tmp/spinner.lock
+    spinner "⚡ Installing MetalLB..." &
+    SPINNER_PID=$!
+
+    cd /Users/julio/Documents/Projects/homelab/k8s-manifests/metallb || { echo "❌ Failed to change directory"; exit 1; }
+    kubectl apply -f namespace.yaml > /dev/null 2>&1
+    ./helm.sh > /dev/null 2>&1
+    kubectl apply -f ipaddresspool.yaml > /dev/null 2>&1
+
+    rm -f /tmp/spinner.lock
+    wait $SPINNER_PID 2>/dev/null
+
+    echo "✅ MetalLB installation completed!"
+}
+
+# Function to install Traefik
+install_traefik() {
+    touch /tmp/spinner.lock
+    spinner "🌍 Installing Traefik..." &
+    SPINNER_PID=$!
+
+    cd /Users/julio/Documents/Projects/homelab/k8s-manifests/traefik || { echo "❌ Failed to change directory"; exit 1; }
+    ./traefik.sh > /dev/null 2>&1
+
+    cd dashboard || { echo "❌ Failed to change directory"; exit 1; }
+    kubectl apply -f secret-dashboard.yaml > /dev/null 2>&1
+    kubectl apply -f default-headers.yaml > /dev/null 2>&1
+    kubectl apply -f middleware.yaml > /dev/null 2>&1
+    kubectl apply -f ingress.yaml > /dev/null 2>&1
+
+    rm -f /tmp/spinner.lock
+    wait $SPINNER_PID 2>/dev/null
+
+    echo "✅ Traefik installation completed!"
+}
+
 # Build cluster
 touch /tmp/spinner.lock
 spinner "🚀 Building cluster..." &
@@ -134,5 +178,11 @@ install_cilium
 # Step 3: Wait for all nodes to become Ready
 wait_for_ready_nodes
 
-echo "🎉 Cluster setup and Cilium installation completed successfully!"
+# Step 4: Install MetalLB
+install_metallb
+
+# Step 5: Install Traefik
+install_traefik
+
+echo "🎉 Cluster setup, Cilium, MetalLB, and Traefik installation completed successfully!"
 
